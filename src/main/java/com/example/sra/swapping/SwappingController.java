@@ -32,28 +32,51 @@ public class SwappingController {
             String courseSecFrom = payLoad.get("courseSecFrom");
             String courseNameTo = payLoad.get("courseNameTo");
             String courseSecTo = payLoad.get("courseSecTo");
-            //Swapping swappingReq = new Swapping(swappingID, rollNum, courseNameFrom, courseSecFrom, courseNameTo, courseSecTo);
-            swappingServiceRepo.insertNewSwapRequest(swappingId, rollNum, courseNameFrom, courseSecFrom, courseNameTo, courseSecTo);
-            return "Success";
+            List<Swapping> checkPrevSwapRequests = swappingServiceRepo.getMySwapRequests(rollNum);
+            Boolean exists = false;
+            for (int i = 0; i<checkPrevSwapRequests.size(); i++)
+            {
+                if (courseNameFrom.equalsIgnoreCase(checkPrevSwapRequests.get(i).getCourseNameFrom()) && courseSecFrom.equalsIgnoreCase(checkPrevSwapRequests.get(i).getCourseSecFrom())
+                && courseNameTo.equalsIgnoreCase(checkPrevSwapRequests.get(i).getCourseNameTo()) && courseSecTo.equalsIgnoreCase(checkPrevSwapRequests.get(i).getCourseSecTo())){
+                    exists = true;
+                }
+            }
+            if (exists == false) {
+                swappingServiceRepo.insertNewSwapRequest(swappingId, 1, rollNum, courseNameFrom, courseSecFrom, courseNameTo, courseSecTo);
+                return "Success";
+            }
+            else{
+                return null;
+            }
         }
-        catch (DataAccessException e){
-            return "Failure";
+        catch (Exception e){
+            return null;
         }
     }
 
     @GetMapping("/currUserSwapRequests")
     @ResponseBody
     public List<Swapping> getMySwapRequests(@RequestParam String rollNum){
-        List<Swapping> mySwapRequests;
-        mySwapRequests = swappingServiceRepo.getMySwapRequests(rollNum);
-        return mySwapRequests;
+        try {
+            List<Swapping> mySwapRequests;
+            mySwapRequests = swappingServiceRepo.getMySwapRequests(rollNum);
+            return mySwapRequests;
+        }
+        catch (Exception e){
+            return null;
+        }
     }
 
     @GetMapping("/incomingSwapRequests")
     @ResponseBody
     public List<SwapsPlusReceivedSwaps> getIncomingRequests(@RequestParam String rollNum){
-        List<SwapsPlusReceivedSwaps> recSwaps = swappingServiceRepo.getIncomingSwapRequests(rollNum);
-        return recSwaps;
+        try {
+            List<SwapsPlusReceivedSwaps> recSwaps = swappingServiceRepo.getIncomingSwapRequests(rollNum);
+            return recSwaps;
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 
     @PostMapping("/acceptIncomingRequest")
@@ -65,32 +88,24 @@ public class SwappingController {
             String message = "";
             Swapping swapReq  = swappingServiceRepo.getSwapRequest(swappingId);
             message = "Congrats! Your request to swap to " + swapReq.courseNameTo + " from " + swapReq.courseNameFrom + " has been accepted ";
+            swappingServiceRepo.deleteSwapRequest(swappingId,0);
+            //swappingServiceRepo.deleteRecSwapRequests(swappingId, 0);
             swappingServiceRepo.sendMessage(senderRollNum, message);
-            swappingServiceRepo.deleteSwapRequest(swappingId);
             return "Success";
         }
-        catch (DataAccessException e) {
-            return "Failure";
+        catch (Exception e) {
+            return null;
         }
     }
 
     @GetMapping("/getAllSwapRequests")
     public List<Swapping> getAllSwapRequests(@RequestParam String rollNum) {
-        return swappingServiceRepo.findAllSwapRequests(rollNum);
+        try {
+            return swappingServiceRepo.findAllSwapRequests(rollNum);
+        }
+        catch (Exception e){
+            return null;
+        }
     }
 
-    @PostMapping("/sendSwapRequest")
-    public String sendSwapRequest(@RequestBody Map<String, String> payload)
-    {
-        try {
-            Integer swappingId = Integer.parseInt(payload.get("swappingId"));
-            String senderRollNum = payload.get("senderRollNum");
-            String answer = swappingServiceRepo.sendSwapRequest(swappingId, senderRollNum);
-            return "Success";
-        }
-        catch (DataAccessException e)
-        {
-            return "Failure";
-        }
-    }
 }

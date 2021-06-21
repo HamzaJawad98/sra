@@ -12,14 +12,16 @@ import javax.persistence.Column;
 public class Swapping {
     @Id
     Integer swappingId;
+    Integer valid;
     String creatorRollNum;
     String courseNameFrom;
     String courseSecFrom;
     String courseNameTo;
     String courseSecTo;
 
-    public Swapping(Integer swappingId, String creatorRollNum, String courseNameFrom, String courseSecFrom, String courseNameTo, String courseSecTo) {
+    public Swapping(Integer swappingId, Integer valid, String creatorRollNum, String courseNameFrom, String courseSecFrom, String courseNameTo, String courseSecTo) {
         this.swappingId = swappingId;
+        this.valid = valid;
         this.creatorRollNum = creatorRollNum;
         this.courseNameFrom = courseNameFrom;
         this.courseSecFrom = courseSecFrom;
@@ -37,6 +39,15 @@ public class Swapping {
 
     public void setSwappingId(Integer swappingId) {
         this.swappingId = swappingId;
+    }
+
+    @Column(name = "valid", nullable = false)
+    public Integer getValid() {
+        return valid;
+    }
+
+    public void setValid(Integer valid) {
+        this.valid = valid;
     }
 
     @Column(name = "creator_roll_num", nullable = false)

@@ -33,7 +33,7 @@ public class CourseReviewController {
             courseReviewServiceRepo.addCourseReview(courseId, review, rating);
             return "Success";
         }
-        catch (DataAccessException e)
+        catch (Exception e)
         {
             return "Failure";
         }
@@ -42,8 +42,13 @@ public class CourseReviewController {
     @GetMapping("/getCourseReviews")
     public List<CourseReview> getCourseReviews(@RequestParam String courseId)
     {
-        List<CourseReview> courseReviews = courseReviewServiceRepo.getCourseReviews(courseId);
-        return courseReviews;
+        try {
+            List<CourseReview> courseReviews = courseReviewServiceRepo.getCourseReviews(courseId);
+            return courseReviews;
+        }
+        catch (Exception e){
+            return null;
+        }
     }
 
 }

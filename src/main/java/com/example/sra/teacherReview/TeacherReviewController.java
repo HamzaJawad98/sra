@@ -4,6 +4,8 @@ import com.example.sra.teacher.TeacherServiceRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,17 +39,23 @@ public class TeacherReviewController {
             teacherReviewServiceRepo.addTeacherReview(tName, review, rating);
             return "Success";
         }
-        catch (DataAccessException e)
+        catch (Exception e)
         {
-            return "Failure";
+            return null;
         }
     }
 
     @GetMapping("/getTeacherReviews")
     public List<TeacherReview> getTeacherReviews(@RequestParam String tName)
     {
-        List<TeacherReview> teacherReviews = teacherReviewServiceRepo.getTeacherReviews(tName);
-        return teacherReviews;
+        try {
+            List<TeacherReview> teacherReviews = teacherReviewServiceRepo.getTeacherReviews(tName);
+            return teacherReviews;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
 }

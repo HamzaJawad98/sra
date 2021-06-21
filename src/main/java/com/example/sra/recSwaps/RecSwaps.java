@@ -12,6 +12,7 @@ import javax.persistence.Column;
 public class RecSwaps {
     @Id
     Integer swappingId;
+    Integer valid;
     String senderRollNum;
 
     public RecSwaps(Integer swappingId, String senderRollNum) {
@@ -28,8 +29,15 @@ public class RecSwaps {
         return swappingId;
     }
 
-    public void setSwappingId(Integer swappingId) {
-        this.swappingId = swappingId;
+    public void setSwappingId(Integer swappingId) { this.swappingId = swappingId; }
+
+    @Column(name = "valid", nullable = false)
+    public Integer getValid() {
+        return valid;
+    }
+
+    public void setValid(Integer valid) {
+        this.valid = valid;
     }
 
     @Column(name = "sender_roll_num", nullable = false)

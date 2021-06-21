@@ -26,6 +26,11 @@ public class CourseController {
 
     @GetMapping("/getAllCourseNames")
     public List<Course> getAllCourseNames() {
-        return courseServiceRepo.findAll();
+        try{
+            return courseServiceRepo.findAll();
+        }
+        catch (Exception e){
+            return null;
+        }
     }
 }

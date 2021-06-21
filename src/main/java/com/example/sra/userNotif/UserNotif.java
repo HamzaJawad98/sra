@@ -11,6 +11,7 @@ import javax.persistence.Column;
 @Table(name = "user_notif")
 public class UserNotif {
     @Id
+    Integer uNotifId;
     String rollNum;
     String _message;
 
@@ -21,6 +22,10 @@ public class UserNotif {
 
     public UserNotif() {
     }
+    @Column(name = "u_notif_id", nullable = false)
+    public Integer getuNotifId(){ return uNotifId; }
+
+    public void setuNotifId(Integer uNotifId) { this.uNotifId = uNotifId; }
 
     @Column(name = "roll_num", nullable = false)
     public String getRollNum() {

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.Table;
 import javax.transaction.Transactional;
 import java.util.List;
 
@@ -16,16 +17,16 @@ public interface SwappingServiceRepo extends JpaRepository<Swapping, String>{
     Integer getMaxSwappingId();
 
     @Query(value = "insert into swapping OUTPUT 'true' " +
-            "values(:swappingId, :creatorRollNum, :courseNameFrom, " +
+            "values(:swappingId, :valid, :creatorRollNum, :courseNameFrom, " +
             ":courseSecFrom, :courseNameTo, :courseSecTo)", nativeQuery = true)
-    String insertNewSwapRequest(@Param("swappingId") Integer swappingId, @Param("creatorRollNum") String creatorRollNum,
+    String insertNewSwapRequest(@Param("swappingId") Integer swappingId, @Param("valid") Integer valid, @Param("creatorRollNum") String creatorRollNum,
                                 @Param("courseNameFrom") String courseNameFrom, @Param("courseSecFrom") String courseSecFrom,
                                 @Param("courseNameTo") String courseNameTo, @Param("courseSecTo") String courseSecTo);
 
-    @Query(value="select * from Swapping where creator_roll_num = :roll_num", nativeQuery = true)
+    @Query(value="select * from Swapping where creator_roll_num = :roll_num and valid = 1", nativeQuery = true)
     List<Swapping> getMySwapRequests(@Param("roll_num") String roll_num);
 
-    @Query(value="select * from Swapping where swapping_id = :swappingId", nativeQuery = true)
+    @Query(value="select * from Swapping where swapping_id = :swappingId and valid = 1", nativeQuery = true)
     Swapping getSwapRequest(@Param("swappingId") Integer swappingId);
 
     @Query(value = "select s.swapping_id AS swappingId, s.creator_roll_num As creatorRollNum, rs.sender_roll_num AS senderRollNum, " +
@@ -33,20 +34,34 @@ public interface SwappingServiceRepo extends JpaRepository<Swapping, String>{
             "s.course_name_to AS courseNameTo, s.course_sec_to as courseSecTo\n" +
             "from swapping s\n" +
             "join received_swap_req rs on s.swapping_id = rs.swapping_id\n" +
-            "where s.creator_roll_num = :rollNum", nativeQuery = true)
+            "where s.creator_roll_num = :rollNum and s.valid = 1", nativeQuery = true)
     List<SwapsPlusReceivedSwaps> getIncomingSwapRequests(@Param("rollNum") String rollNum);
 
     @Query(value = "insert into user_notif OUTPUT 'true' " +
             "values(:rollNum, :message)", nativeQuery = true)
     String sendMessage(@Param("rollNum") String rollNum, @Param("message") String message);
 
-    @Query(value = "delete from swapping where swapping_id = :swappingId)", nativeQuery = true)
-    Void deleteSwapRequest(@Param("swappingId") Integer swappingId);
+//    @Transactional
+//    @Modifying(clearAutomatically = true)
+//    @Query("update Swapping s set s.valid = ?2 where s.swappingId = ?1")
+//    void deleteSwapRequest(Integer swappingId, Integer valid);
+//
+//    @Transactional
+//    @Modifying(clearAutomatically = true)
+//    @Query("update RecSwaps rs set rs.valid = ?2 where rs.swappingId = ?1")
+//    void deleteRecSwapRequests(Integer swappingId, Integer valid);
 
-    @Query(value = "insert into received_swap_req OUTPUT 'true'" +
-            " values(:swappingId, :senderRollNum)", nativeQuery = true)
-    String sendSwapRequest(@Param ("swappingId") Integer swappingId, @Param("senderRollNum") String senderRollNum);
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query("delete from Swapping s where s.swappingId = ?1")
+    void deleteSwapRequest(Integer swappingId, Integer valid);
 
-    @Query(value="select * from Swapping where creator_roll_num != :rollNum", nativeQuery = true)
+//    @Transactional
+//    @Modifying(clearAutomatically = true)
+//    @Query("delete from RecSwaps rs where rs.swappingId = ?1")
+//    void deleteRecSwapRequests(Integer swappingId, Integer valid);
+
+    @Query(value="select * from Swapping where creator_roll_num != :rollNum and valid = 1", nativeQuery = true)
     List<Swapping> findAllSwapRequests(@Param("rollNum") String rollNum);
+
 }
